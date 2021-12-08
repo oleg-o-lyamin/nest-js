@@ -43,7 +43,7 @@ export class NewsController {
   modify(@Body() news: News, @Param('id') id: string): News | string {
     const idInt = parseInt(id);
     return (
-      this.newsService.modify(idInt, news) || 'Передан неверный идентификатор'
+      this.newsService.modify(idInt, news) || 'Передан неверный идентификатор!'
     );
   }
 }
