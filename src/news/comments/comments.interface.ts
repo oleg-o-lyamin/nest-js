@@ -3,4 +3,5 @@ export type Comment = {
   message: string;
   author?: string;
   replies?: Comment[];
+  avatar?: string;
 };

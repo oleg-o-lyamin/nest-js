@@ -3,6 +3,7 @@ import { randomInt } from 'crypto';
 import { CommentsController } from './comments/comments.controller';
 import { News } from './news.interface';
 import { Comment } from './comments/comments.interface';
+import * as fs from 'fs';
 
 function getRandomInt(min: number, max: number): number {
   min = Math.ceil(min);
@@ -52,7 +53,7 @@ export class NewsService {
     return finalNews;
   }
 
-  addComment(id: number, content: string): boolean {
+  addComment(id: number, content: string, avatar: string): boolean {
     const index = this.news.findIndex((news) => news.id == id);
     if (index !== -1) {
       this.news[index].comments = this.news[index].comments
@@ -62,16 +63,27 @@ export class NewsService {
       this.news[index].comments.push({
         id: randomInt(0, 99999),
         message: content,
+        avatar: avatar,
       });
 
       return true;
     } else return false;
   }
 
-  addComment2(id: number, commentId: number, content: string): boolean {
+  addComment2(
+    id: number,
+    commentId: number,
+    content: string,
+    avatar: string,
+  ): boolean {
     const index = this.news.findIndex((news) => news.id == id);
     if (index !== -1 && this.news[index].comments) {
-      return this.addComment3(this.news[index].comments, commentId, content);
+      return this.addComment3(
+        this.news[index].comments,
+        commentId,
+        content,
+        avatar,
+      );
     } else return false;
   }
 
@@ -79,6 +91,7 @@ export class NewsService {
     comments: Comment[],
     commentId: number,
     content: string,
+    avatar: string,
   ): boolean {
     for (let index = 0; index < comments.length; index++) {
       if (comments[index].id == commentId) {
@@ -86,12 +99,15 @@ export class NewsService {
         comments[index].replies.push({
           id: randomInt(0, 99999),
           message: content,
+          avatar: avatar,
         });
         return true;
       }
 
       if (comments[index].replies)
-        if (this.addComment3(comments[index].replies, commentId, content))
+        if (
+          this.addComment3(comments[index].replies, commentId, content, avatar)
+        )
           return true;
     }
 
@@ -130,6 +146,7 @@ export class NewsService {
   delete2(comments: Comment[], commentId: number): boolean {
     for (let index = 0; index < comments.length; index++) {
       if (comments[index].id == commentId) {
+        fs.unlinkSync(`public/${comments[index].avatar}`);
         comments.splice(index, 1);
         return true;
       }

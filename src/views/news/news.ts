@@ -6,16 +6,39 @@ function renderNext(news: News, comments: Comment[], level = 0): string {
   if (comments)
     comments.forEach((comment) => {
       html += `<div style="padding-left: ${level}px;">
+        <span><img src="http://localhost:3000/${
+          comment.avatar
+        }" style="width:25px; height:25px;"></span>
         <span>${comment.message}</span>
-        <a href="#" style="text-decoration:none;" onclick="getElementById('form-${news.id}-${comment.id}').style.display='block'">+</a>|
-        <a href="#" style="text-decoration:none;" onclick="getElementById('form-${news.id}-${comment.id}-edit').style.display='block'">edit</a>|
-        <a href="#" style="text-decoration:none;" onclick="getElementById('form-${news.id}-${comment.id}-delete').submit()">X</a>
-        <form style='display: none;' method='POST' action='/news/${news.id}/delete/${comment.id}' id='form-${news.id}-${comment.id}-delete'></form>
-        <form style='display: none;' method='POST' action='/news/${news.id}/new/${comment.id}' id='form-${news.id}-${comment.id}'>
-          <input type="text" name="content" /><input type="submit" />
+        <a href="#" style="text-decoration:none;" onclick="getElementById('form-${
+          news.id
+        }-${comment.id}').style.display='block'">+</a>|
+        <a href="#" style="text-decoration:none;" onclick="getElementById('form-${
+          news.id
+        }-${comment.id}-edit').style.display='block'">edit</a>|
+        <a href="#" style="text-decoration:none;" onclick="getElementById('form-${
+          news.id
+        }-${comment.id}-delete').submit()">X</a>
+        <form style='display: none;' method='POST' action='/news/${
+          news.id
+        }/delete/${comment.id}' id='form-${news.id}-${
+        comment.id
+      }-delete'></form>
+        <form style='display: none;' method='POST' action='/news/${
+          news.id
+        }/new/${comment.id}' id='form-${news.id}-${
+        comment.id
+      }' enctype='multipart/form-data'>
+          <div>Text: <input type="text" name="content" /></div>
+          <div>File: <input type="file" name="avatar" /></div>
+          <div><input type="submit" /></div>
         </form>
-        <form style='display: none;' method='POST' action='/news/${news.id}/edit/${comment.id}' id='form-${news.id}-${comment.id}-edit'>
-          <input type="text" name="content" value="${comment.message}" /><input type="submit" />
+        <form style='display: none;' method='POST' action='/news/${
+          news.id
+        }/edit/${comment.id}' id='form-${news.id}-${comment.id}-edit'>
+          <input type="text" name="content" value="${
+            comment.message
+          }" /><input type="submit" />
         </form>
       </div>${renderNext(news, comment.replies, level + 20)}`;
     });
@@ -30,7 +53,11 @@ export function renderNews(news: News): string {
   } else commentSection = `<div>Нет комментариев</div>`;
 
   commentSection += `<a href="#" style="text-decoration:none;" onclick="getElementById('form-${news.id}').style.display='block'">+</a>
-  <form style='display: none;' method='POST' action='/news/${news.id}' id='form-${news.id}'><input type="text" name="content" /><input type="submit" /></form>`;
+  <form style='display: none;' method='POST' action='/news/${news.id}' id='form-${news.id}' enctype='multipart/form-data'>
+    <div>Text: <input type="text" name="content" /></div>
+    <div>File: <input type="file" name="avatar" /></div>
+    <div><input type="submit" /></div>
+  </form>`;
 
   return `
     <h1>${news.title}</h1>
