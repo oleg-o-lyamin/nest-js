@@ -10,47 +10,66 @@ import {
   Redirect,
   UploadedFile,
   UseInterceptors,
+  Render,
 } from '@nestjs/common';
 import { News } from './news.interface';
 import { NewsService } from './news.service';
 import { CommentsService } from './comments/comments.service';
-import { renderNewsAll } from '../views/news/news-all';
-import { renderNews } from 'src/views/news/news';
-import { renderTemplate } from '../views/template';
 import { CommentIdDto, CommentBodyDto, NewsIdDto } from './dtos/dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { HelperFileLoader } from 'src/utils/HelperFiledLoader';
+import { MailService } from 'src/mail/mail.service';
 
 const helperFileLoader = new HelperFileLoader();
 helperFileLoader.path = '/avatars';
+
+const SEND_TO = 'some.e.mail@something.com';
 
 @Controller('news')
 export class NewsController {
   constructor(
     private newsService: NewsService,
     private readonly commentsService: CommentsService,
+    private mailService: MailService,
   ) {}
 
   @Get()
-  getAllNewsView() {
+  @Render('news-list')
+  getAllNewsView(): { title: string; news: News[] } {
     const news = this.newsService.findAll();
-    const content = renderNewsAll(news);
-    return renderTemplate(content, {
-      title: 'Список новостей',
-      description: 'Самый крутые новости на свете!',
+    return { title: 'Новости', news: news };
+  }
+
+  @Get('/:newsId/edit')
+  @Render('news-edit')
+  getEditView(@Param('newsId') id: string): { news: News } {
+    const idInt = parseInt(id);
+    const news = this.newsService.find(idInt);
+    return { news: news };
+  }
+
+  @Post('/:newsId/edit')
+  @Redirect()
+  editNews(@Param('newsId') id: string, @Body() body) {
+    const idInt = parseInt(id);
+    const news = this.newsService.find(idInt);
+    const changes = [];
+    Object.keys(body).forEach((key) => {
+      if (news[key] != body[key])
+        changes.push({ key: key, old: news[key], new: body[key] });
     });
+    if (changes.length > 0) this.mailService.send(SEND_TO, changes);
+    this.newsService.modify(idInt, body);
+    return { url: `/news/${id}` };
   }
 
   @Get('/:id')
-  getNewsView(@Param('id') id: string) {
+  @Render('news')
+  getNewsView(@Param('id') id: string): { news: News } {
     const idInt = parseInt(id);
     const news = this.newsService.find(idInt);
-    const content = renderNews(news);
-    return renderTemplate(content, {
-      title: `${news.title}`,
-      description: `${news.description}`,
-    });
+    return { news: news };
   }
 
   @Post('/:newsId')
