@@ -1,0 +1,16 @@
+{{#if changes}}
+<table>
+    <tr>
+        <td>field</td>
+        <td>old value</td>
+        <td>new value</td>
+    </tr>
+    {{#each changes}}
+    <tr>
+        <td>{{ this.key }}</td>
+        <td>{{ this.old }}</td>
+        <td>{{ this.new }}</td>
+    </tr>
+    {{/each}}
+</table>
+{{/if}}
