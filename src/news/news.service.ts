@@ -58,7 +58,7 @@ export class NewsService {
     const indexModifyNews = this.news.findIndex((news) => news.id === id);
     if (indexModifyNews !== -1) {
       Object.keys(news).forEach((key) => {
-        this.news[indexModifyNews][key] = news[key];
+        if (key !== 'id') this.news[indexModifyNews][key] = news[key];
       });
 
       return this.news[indexModifyNews];
