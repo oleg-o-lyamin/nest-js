@@ -24,12 +24,6 @@ export class CommentsEntity {
   @ManyToOne(() => NewsEntity, (news) => news.comments)
   news: NewsEntity;
 
-  @OneToMany(() => CommentsEntity, (comments) => comments.news)
-  comments: CommentsEntity[];
-
-  @ManyToOne(() => CommentsEntity, (comment) => comment.comments)
-  parent: CommentsEntity;
-
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 

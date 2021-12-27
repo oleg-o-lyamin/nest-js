@@ -10,6 +10,10 @@ export class CommentBodyDto {
   @IsString()
   @IsNotEmpty()
   content: string;
+
+  @IsString()
+  @IsNotEmpty()
+  user: string;
 }
 
 export class CommentIdDto extends NewsIdDto {

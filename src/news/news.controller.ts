@@ -4,9 +4,6 @@ import {
   Get,
   Param,
   Post,
-  Delete,
-  Patch,
-  HttpCode,
   Redirect,
   UploadedFile,
   UseInterceptors,
@@ -30,6 +27,8 @@ import { MailService } from 'src/mail/mail.service';
 import { NewsEntity } from './news.entity';
 import { UsersService } from 'src/users/users.service';
 import { UsersEntity } from 'src/users/users.entity';
+import { CommentsEntity } from './comments/comments.entity';
+import { RelationQueryBuilder } from 'typeorm';
 
 const coverFileLoader = new HelperFileLoader();
 coverFileLoader.path = '/covers';
@@ -40,7 +39,7 @@ const SEND_TO = 'some.e.mail@something.com';
 export class NewsController {
   constructor(
     private newsService: NewsService,
-    private readonly commentsService: CommentsService,
+    private commentsService: CommentsService,
     private mailService: MailService,
     private usersService: UsersService,
   ) { }
@@ -65,8 +64,7 @@ export class NewsController {
       throw new HttpException('No such author!', HttpStatus.BAD_REQUEST);
     }
 
-    console.log(cover.filename);
-    if (!cover?.filename || cover?.filename?.length == 0) {
+    if (!(cover && cover.filename && cover.filename.length > 0)) {
       throw new HttpException('No cover!', HttpStatus.BAD_REQUEST);
     }
 
@@ -95,147 +93,74 @@ export class NewsController {
     });
   }
 
-  // @Get()
-  // @Render('news-list')
-  // getAllNewsView(): { title: string; news: News[] } {
-  //   const news = this.newsService.findAll();
-  //   return { title: 'Новости', news: news };
-  // }
+  @Get('all/:id')
+  @Render('news-list')
+  async allNewsByAuthor(
+    @Param('id') id: string,
+  ): Promise<{ news: NewsEntity[] }> {
+    const idInt = parseInt(id);
+    return { news: await this.newsService.findAllByAuthor(idInt) };
+  }
 
-  // @Get('/:newsId/edit')
-  // @Render('news-edit')
-  // getEditView(@Param('newsId') id: string): { news: News } {
-  //   const idInt = parseInt(id);
-  //   const news = this.newsService.find(idInt);
-  //   return { news: news };
-  // }
+  @Get('/:id')
+  @Render('view-news')
+  async getNewsView(
+    @Param('id') id: string,
+  ): Promise<{ news: NewsEntity; users: UsersEntity[] }> {
+    const idInt = parseInt(id);
+    return {
+      news: await this.newsService.findById(idInt),
+      users: await this.usersService.find(),
+    };
+  }
 
-  // @Post('/:newsId/edit')
-  // @Redirect()
-  // editNews(@Param('newsId') id: string, @Body() body) {
-  //   const idInt = parseInt(id);
-  //   const news = this.newsService.find(idInt);
-  //   const changes = [];
-  //   Object.keys(body).forEach((key) => {
-  //     if (news[key] != body[key])
-  //       changes.push({ key: key, old: news[key], new: body[key] });
-  //   });
-  //   if (changes.length > 0) this.mailService.send(SEND_TO, changes);
-  //   this.newsService.modify(idInt, body);
-  //   return { url: `/news/${id}` };
-  // }
+  @Post('/:newsId')
+  @Redirect()
+  async addComment(
+    @Param() params: NewsIdDto,
+    @Body() comment: CommentBodyDto,
+  ) {
+    const idInt = parseInt(params.newsId);
 
-  // @Get('/:id')
-  // @Render('news')
-  // getNewsView(@Param('id') id: string): { news: News } {
-  //   const idInt = parseInt(id);
-  //   const news = this.newsService.find(idInt);
-  //   return { news: news };
-  // }
+    const commentEntity = new CommentsEntity();
+    commentEntity.message = comment.content;
+    commentEntity.user = await this.usersService.findByName(comment.user);
+    commentEntity.news = await this.newsService.findById(idInt);
+    await this.commentsService.create(commentEntity);
+    return { url: `/news/${params.newsId}` };
+  }
 
-  // @Post('/:newsId')
-  // @UseInterceptors(
-  //   FileInterceptor('avatar', {
-  //     storage: diskStorage({
-  //       destination: helperFileLoader.destinationPath,
-  //       filename: helperFileLoader.customFileName,
-  //     }),
-  //     fileFilter: helperFileLoader.fileFilter,
-  //   }),
-  // )
-  // @Redirect()
-  // addComment(
-  //   @Param() params: NewsIdDto,
-  //   @Body() comment: CommentBodyDto,
-  //   @UploadedFile() avatar: Express.Multer.File,
-  // ) {
-  //   const idInt = parseInt(params.newsId);
-  //   this.newsService.addComment(
-  //     idInt,
-  //     comment.content,
-  //     '/avatars/' + avatar.filename,
-  //   );
-  //   return { url: `/news/${params.newsId}` };
-  // }
+  @Get('/:newsId/edit')
+  @Render('edit-news')
+  async getEditView(
+    @Param('newsId') id: string,
+  ): Promise<{ title: string; news: NewsEntity }> {
+    const idInt = parseInt(id);
+    const news = await this.newsService.findById(idInt);
+    return { title: 'Редактирование новости', news: news };
+  }
 
-  // @Post('/:newsId/new/:commentId')
-  // @UseInterceptors(
-  //   FileInterceptor('avatar', {
-  //     storage: diskStorage({
-  //       destination: helperFileLoader.destinationPath,
-  //       filename: helperFileLoader.customFileName,
-  //     }),
-  //     fileFilter: helperFileLoader.fileFilter,
-  //   }),
-  // )
-  // @Redirect()
-  // addComment2(
-  //   @Param() params: CommentIdDto,
-  //   @Body() comment: CommentBodyDto,
-  //   @UploadedFile() avatar: Express.Multer.File,
-  // ) {
-  //   const newsIdInt = parseInt(params.newsId);
-  //   const commentIdInt = parseInt(params.commentId);
-  //   this.newsService.addComment2(
-  //     newsIdInt,
-  //     commentIdInt,
-  //     comment.content,
-  //     '/avatars/' + avatar.filename,
-  //   );
-  //   return { url: `/news/${params.newsId}` };
-  // }
+  @Post('/:newsId/edit')
+  @Redirect()
+  async editNews(@Param('newsId') id: string, @Body() body) {
+    const idInt = parseInt(id);
+    await this.newsService.update(idInt, body.title, body.description);
+    return { url: `/news/${id}` };
+  }
 
-  // @Post('/:newsId/edit/:commentId')
-  // @Redirect()
-  // edit(@Param() params: CommentIdDto, @Body() comment: CommentBodyDto) {
-  //   const newsIdInt = parseInt(params.newsId);
-  //   const commentIdInt = parseInt(params.commentId);
-  //   this.newsService.edit(newsIdInt, commentIdInt, comment.content);
-  //   return { url: `/news/${params.newsId}` };
-  // }
+  @Post('/:newsId/edit/:commentId')
+  @Redirect()
+  async edit(@Param() params: CommentIdDto, @Body() comment) {
+    const commentIdInt = parseInt(params.commentId);
+    await this.commentsService.update(commentIdInt, comment.content);
+    return { url: `/news/${params.newsId}` };
+  }
 
-  // @Post('/:newsId/delete/:commentId')
-  // @Redirect()
-  // deleteComment(@Param() params: CommentIdDto) {
-  //   const newsIdInt = parseInt(params.newsId);
-  //   const commentIdInt = parseInt(params.commentId);
-  //   this.newsService.delete(newsIdInt, commentIdInt);
-  //   return { url: `/news/${params.newsId}` };
-  // }
-
-  //
-  // API landfill
-  //
-
-  // @Get('/api')
-  // @HttpCode(200)
-  // getAllNews(): News[] {
-  //   return this.newsService.findAll();
-  // }
-
-  // @Get('/api/:id')
-  // getNews(@Param('id') id: string): News {
-  //   const idInt = parseInt(id);
-  //   return this.newsService.find(idInt);
-  // }
-
-  // @Post('/api')
-  // create(@Body() news: News) {
-  //   return this.newsService.create(news);
-  // }
-
-  // @Delete('/api/:id')
-  // remove(@Param('id') id: string): string {
-  //   const idInt = parseInt(id);
-  //   const isRemoved = this.newsService.remove(idInt);
-  //   return isRemoved ? 'Новость удалена' : 'Передан неверный идентификатор';
-  // }
-
-  // @Patch('/api/:id')
-  // modify(@Body() news: News, @Param('id') id: string): News | string {
-  //   const idInt = parseInt(id);
-  //   return (
-  //     this.newsService.modify(idInt, news) || 'Передан неверный идентификатор'
-  //   );
-  // }
+  @Post('/:newsId/delete/:commentId')
+  @Redirect()
+  async deleteComment(@Param() params: CommentIdDto) {
+    const commentIdInt = parseInt(params.commentId);
+    await this.commentsService.delete(commentIdInt);
+    return { url: `/news/${params.newsId}` };
+  }
 }
