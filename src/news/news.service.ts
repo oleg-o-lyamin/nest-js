@@ -1,9 +1,11 @@
-import { assignMetadata, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { randomInt } from 'crypto';
-import { CommentsController } from './comments/comments.controller';
 import { News } from './news.interface';
 import { Comment } from './comments/comments.interface';
 import * as fs from 'fs';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { NewsEntity } from './news.entity';
 
 function getRandomInt(min: number, max: number): number {
   min = Math.ceil(min);
@@ -34,23 +36,38 @@ export class NewsService {
     },
   ];
 
-  find(id: number): News | undefined {
-    return this.news.find((news) => news.id === id);
+  constructor(
+    @InjectRepository(NewsEntity)
+    private readonly newsRepository: Repository<NewsEntity>,
+  ) { }
+
+  // find(id: number): News | undefined {
+  //   return this.news.find((news) => news.id === id);
+  // }
+
+  async findById(id: number): Promise<NewsEntity> {
+    return await this.newsRepository.findOne({ id });
   }
 
-  findAll(): News[] {
-    return this.news;
+  // findAll(): News[] {
+  //   return this.news;
+  // }
+  async findAll(): Promise<NewsEntity[]> {
+    return await this.newsRepository.find({ relations: ['user'] });
   }
 
-  create(news: News): News {
-    const id = getRandomInt(0, 99999);
-    const finalNews = {
-      ...news,
-      id: id,
-    };
+  // create(news: News): News {
+  //   const id = getRandomInt(0, 99999);
+  //   const finalNews = {
+  //     ...news,
+  //     id: id,
+  //   };
 
-    this.news.push(finalNews);
-    return finalNews;
+  //   this.news.push(finalNews);
+  //   return finalNews;
+  // }
+  async create(news: NewsEntity) {
+    return await this.newsRepository.save(news);
   }
 
   addComment(id: number, content: string, avatar: string): boolean {
@@ -158,13 +175,18 @@ export class NewsService {
     return false;
   }
 
-  remove(id: number): boolean {
-    const indexRemoveNews = this.news.findIndex((news) => news.id === id);
-    if (indexRemoveNews !== -1) {
-      this.news.splice(indexRemoveNews, 1);
-      return true;
-    }
-    return false;
+  // remove(id: number): boolean {
+  //   const indexRemoveNews = this.news.findIndex((news) => news.id === id);
+  //   if (indexRemoveNews !== -1) {
+  //     this.news.splice(indexRemoveNews, 1);
+  //     return true;
+  //   }
+  //   return false;
+  // }
+
+  async remove(id: number) {
+    const _news = await this.findById(id);
+    return await this.newsRepository.remove(_news);
   }
 
   modify(id: number, news: News): News | undefined {

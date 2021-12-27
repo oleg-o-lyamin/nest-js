@@ -3,22 +3,20 @@
 
 <head>
     <meta charset="utf-8" />
-    <!-- Инициализирована переменная title для вставки заголовка страницы, именно этот тег мы видим в поисковой выдаче и в названии вкладки браузера -->
     <title>{{title}}</title>
 
-    <!-- Подключены внешние стили -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 
 <body class="d-flex flex-column h-100">
+    {{> header}}
     <main class="flex-shrink-0">
         <div class="container">
-            <!-- Инициализирована конструкция body, куда станут вставляться наши страницы -->
+            <h1>{{ title }}</h1>
             {{{body}}}
         </div>
     </main>
-    <!-- Инициализировано место под шаблон footer -->
     {{> footer}}
 </body>
 

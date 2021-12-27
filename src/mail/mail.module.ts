@@ -8,7 +8,7 @@ import { join } from 'path';
 @Module({
   imports: [
     MailerModule.forRoot({
-      transport: 'SOME_TRANSPORT',
+      transport: 'smtps://user@domain.com:pass@smtp.domain.com',
       defaults: {
         from: 'FROM_SOMEONE',
       },

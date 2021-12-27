@@ -1,0 +1,25 @@
+<form method='POST' action='/news/new' enctype='multipart/form-data'>
+    <div class="mb-3">
+        <label for="title" class="form-label">Название</label>
+        <input type="text" class="form-control" id="title" name="title">
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Описание</label>
+        <input type="textarea" class="form-control" id="description" name="description">
+    </div>
+    <div class="mb-3">
+        <label for="cover">Обложка</label>
+        <input type="file" class="form-control-file" id="cover" name="cover">
+    </div>
+    <div class="mb-3">
+        <label for="user" class="form-label">Пользователь</label>
+        <select class="form-control" id="user" name="user">
+            {{#each users}}
+            <option>{{this.firstName}} {{this.lastName}}</option>
+            {{/each}}
+        </select>
+    </div>
+    <div>
+        <button type="submit" class="btn btn-primary">Создать</button>
+    </div>
+</form>
