@@ -1,0 +1,17 @@
+{{#if comments}}
+{{#each comments}}
+<div style="padding-left: {{../level}}px;">
+    <span>{{this.message}}</span>
+    <a href="#" style="text-decoration:none;"
+        onclick="getElementById('form-{{../news.id}}-{{this.id}}-edit').style.display='block'">edit</a>|
+    <a href="#" style="text-decoration:none;"
+        onclick="getElementById('form-{{../news.id}}-{{this.id}}-delete').submit()">X</a>
+    <form style='display: none;' method='POST' action='/news/{{../news.id}}/delete/{{this.id}}'
+        id='form-{{../news.id}}-{{this.id}}-delete'></form>
+    <form style='display: none;' method='POST' action='/news/{{../news.id}}/edit/{{this.id}}'
+        id='form-{{../news.id}}-{{this.id}}-edit'>
+        <input type="text" name="content" value="{{this.message}}" /><input type="submit" />
+    </form>
+</div>
+{{/each}}
+{{/if}}
