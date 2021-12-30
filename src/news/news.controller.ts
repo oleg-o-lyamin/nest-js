@@ -148,13 +148,13 @@ export class NewsController {
   async getEditView(
     @Param('id') id: string,
     @Request() req,
-  ): Promise<{ title: string; news: NewsEntity }> {
+  ): Promise<{ title: string; news: NewsEntity, user: UsersEntity }> {
     const idInt = parseInt(id);
     const news = await this.newsService.findById(idInt);
 
     if (news.user.id != req.user.id) throw new UnauthorizedException();
 
-    return { title: 'Редактирование новости', news: news };
+    return { title: 'Редактирование новости', news: news, user: news.user };
   }
 
   @UseGuards(AuthGuard('jwt'))

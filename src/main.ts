@@ -35,6 +35,9 @@ async function bootstrap() {
         fullname(user: UsersEntity) {
           return user.firstName + ' ' + user.lastName;
         },
+        usersEqual(user1: UsersEntity, user2: UsersEntity) {
+          return user1.id == user2.id;
+        }
       },
     }),
   );

@@ -28,9 +28,11 @@ export class AuthService {
   }
 
   async verify(token: string) {
-    if (token)
-      return this.jwtService.verify(token);
-    else
+    try {
+      if (token) return this.jwtService.verify(token);
+      else return null;
+    } catch {
       return null;
+    }
   }
 }

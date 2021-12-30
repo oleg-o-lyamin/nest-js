@@ -3,12 +3,14 @@
         <div>
             <p class="h1">{{ news.title }}</p>
         </div>
+        {{#if (usersEqual news.user user)}}
         <div class="m-2"><a href="/news/edit/{{news.id}}" class="btn btn-primary">Редактировать</a></div>
         <div class="m-2">
             <form method="POST" action='/news/delete/{{news.id}}' style="display: inline;">
                 <button type='submit' class='btn btn-primary'>Удалить</button>
             </form>
         </div>
+        {{/if}}
     </div>
 
     <p class="card-text"><img src='{{news.user.avatar}}' style="height: 16px; width: 16px;"
@@ -28,5 +30,5 @@
         </div>
     </form>
 
-    {{>comments news=news comments=news.comments users=users level=0}}
+    {{>comments comments=news.comments user=user}}
 </div>
