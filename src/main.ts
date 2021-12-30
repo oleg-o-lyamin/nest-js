@@ -5,6 +5,8 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { engine } from 'express-handlebars';
 import * as hbs from 'hbs';
 import { AppModule } from './app.module';
+import * as cookieParser from 'cookie-parser';
+import { UsersEntity } from './users/users.entity';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -22,11 +24,24 @@ async function bootstrap() {
         inc(level) {
           return level + 20;
         },
+        date(date: Date) {
+          return date.toLocaleDateString('ru-RU', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          });
+        },
+        fullname(user: UsersEntity) {
+          return user.firstName + ' ' + user.lastName;
+        },
       },
     }),
   );
   hbs.registerPartials(__dirname + '/views/partials');
   app.setViewEngine('hbs');
+
+  app.use(cookieParser());
 
   await app.listen(3000);
 }

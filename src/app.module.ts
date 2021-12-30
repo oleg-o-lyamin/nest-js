@@ -10,6 +10,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { NewsEntity } from './news/news.entity';
 import { UsersEntity } from './users/users.entity';
 import { CommentsEntity } from './news/comments/comments.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { CommentsEntity } from './news/comments/comments.entity';
     ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'public') }),
     MailModule,
     UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

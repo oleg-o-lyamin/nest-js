@@ -21,7 +21,7 @@ export class CommentsEntity {
   @ManyToOne(() => UsersEntity, (user) => user.comments)
   user: UsersEntity;
 
-  @ManyToOne(() => NewsEntity, (news) => news.comments)
+  @ManyToOne(() => NewsEntity, (news) => news.comments, { onDelete: 'CASCADE' })
   news: NewsEntity;
 
   @CreateDateColumn({ type: 'timestamp' })

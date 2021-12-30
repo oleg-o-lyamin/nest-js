@@ -1,0 +1,8 @@
+<form method='POST' action='/comments/edit/{{ comment.id }}'>
+    <div class="mb-3">
+        <input type="text" class="form-control" id="message" name="message" value="{{ comment.message }}">
+    </div>
+    <div>
+        <button type="submit" class="btn btn-primary">Редактировать</button>
+    </div>
+</form>

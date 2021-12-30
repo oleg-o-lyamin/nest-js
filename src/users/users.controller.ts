@@ -1,17 +1,19 @@
-import { Body, Controller, Get, Post, Redirect, Render } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Redirect, Render, UploadedFile, UseGuards, UseInterceptors, Request, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersEntity } from './users.entity';
 import { UserCreateDto } from './dtos/dto';
 import { from, Observable } from 'rxjs';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { HelperFileLoader } from 'src/utils/HelperFiledLoader';
+import { hash } from 'src/utils/crypto';
+import { AuthGuard } from '@nestjs/passport';
+
+const avatarFileLoader = new HelperFileLoader();
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
-
-  // @Post()
-  // async create(@Body() user: UserCreateDto): Promise<UsersEntity> {
-  //   return this.usersService.create(user);
-  // }
 
   @Get('/new')
   @Render('new-user')
@@ -20,16 +22,60 @@ export class UsersController {
   }
 
   @Post('/new')
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: diskStorage({
+        destination: './public/avatars',
+        filename: avatarFileLoader.customFileName,
+      }),
+      fileFilter: avatarFileLoader.fileFilter,
+    }),
+  )
   @Redirect()
-  create(@Body() body: UserCreateDto) {
-    this.usersService.create(body);
-    return { url: '/users' };
+  async create(
+    @Body() body: UserCreateDto,
+    @UploadedFile() avatar: Express.Multer.File,
+  ) {
+    const userEntity = new UsersEntity();
+    userEntity.firstName = body.firstName;
+    userEntity.lastName = body.lastName;
+    userEntity.email = body.email;
+    userEntity.role = body.role;
+    userEntity.avatar = '/avatars/' + avatar.filename;
+    userEntity.password = await hash(body.password);
+    this.usersService.create(userEntity);
+    return { url: '/news' };
   }
 
-  @Get()
-  @Render('new-user')
-  async allUsers(): Promise<{ users: UsersEntity[] }> {
-    const users: UsersEntity[] = await this.usersService.find();
-    return { users: users };
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/edit/:id')
+  @Render('edit-user')
+  async edit(
+    @Param('id') id: string,
+    @Request() req,
+  ): Promise<{ title: string; user: UsersEntity }> {
+    const idInt = parseInt(id);
+
+    if (idInt != req.user.id) throw new UnauthorizedException();
+
+    const user = await this.usersService.findById(idInt);
+    return { title: 'Редактирование профиля', user: user };
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/edit/:id')
+  @Redirect()
+  async modify(@Param('id') id: string, @Body() body, @Request() req) {
+    const idInt = parseInt(id);
+
+    if (idInt != req.user.id) throw new UnauthorizedException();
+
+    await this.usersService.update(
+      idInt,
+      body.firstName,
+      body.lastName,
+      body.email,
+    );
+    return { url: '/news' };
   }
 }

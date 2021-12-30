@@ -26,6 +26,12 @@ export class UsersEntity {
   @Column('text')
   role: string;
 
+  @Column('text')
+  password: string;
+
+  @Column('text', { nullable: true })
+  avatar: string;
+
   @OneToMany(() => NewsEntity, (news) => news.user)
   news: NewsEntity[];
 

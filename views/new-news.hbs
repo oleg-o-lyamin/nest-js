@@ -8,16 +8,8 @@
         <input type="textarea" class="form-control" id="description" name="description">
     </div>
     <div class="mb-3">
-        <label for="cover">Обложка</label>
-        <input type="file" class="form-control-file" id="cover" name="cover">
-    </div>
-    <div class="mb-3">
-        <label for="user" class="form-label">Пользователь</label>
-        <select class="form-control" id="user" name="user">
-            {{#each users}}
-            <option>{{this.firstName}} {{this.lastName}}</option>
-            {{/each}}
-        </select>
+        <label for="cover" class="form-label">Обложка</label>
+        <input type="file" class="form-control" id="cover" name="cover">
     </div>
     <div>
         <button type="submit" class="btn btn-primary">Создать</button>
