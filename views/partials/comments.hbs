@@ -1,0 +1,25 @@
+{{#if comments}}
+{{#each comments}}
+<div style="padding-bottom: 20px;" class="d-flex">
+    <img class="rounded-circle m-1" alt='avatar' src='{{ this.user.avatar }}' width='20' height='20'>
+    <div>
+        <div><small class="text-muted">{{fullname
+                this.user}}</small><span class="m-1 text-muted">&#183;</span><small class="text-muted">{{date
+                this.createdAt}}</small></div>
+        <div>{{ this.message }}</div>
+        {{#if (usersEqual this.user ../user)}}
+        <div>
+            <a href='/comments/edit/{{this.id}}'><small>Редактировать</small></a>
+            <span class="m-1 text-muted">&#183;</span>
+            <form method="POST" action='/comments/delete/{{this.id}}' style="display: inline;">
+                <button type='submit' class='btn btn-link' role="link"
+                    style="outline: none !important; padding: 0; border: 0; vertical-align: baseline;">
+                    <small>Удалить</small>
+                </button>
+            </form>
+        </div>
+        {{/if}}
+    </div>
+</div>
+{{/each}}
+{{/if}}
