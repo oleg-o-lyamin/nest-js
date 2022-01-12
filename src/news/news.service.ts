@@ -6,6 +6,7 @@ import * as fs from 'fs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { NewsEntity } from './news.entity';
+import { NewsBodyDto } from './dtos/dto';
 
 @Injectable()
 export class NewsService {
@@ -36,10 +37,10 @@ export class NewsService {
     return await this.newsRepository.save(news);
   }
 
-  async update(id: number, title: string, description: string) {
+  async update(id: number, body: NewsBodyDto) {
     return await this.newsRepository.update(id, {
-      title: title,
-      description: description,
+      title: body.title,
+      description: body.description,
     });
   }
 

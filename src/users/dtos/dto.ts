@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, IsEmail } from 'class-validator';
 
-export class UserCreateDto {
+export class UserPersonalInfoDto {
   @IsNotEmpty()
   @IsString()
   firstName: string;
@@ -12,7 +12,9 @@ export class UserCreateDto {
   @IsNotEmpty()
   @IsEmail()
   email: string;
+}
 
+export class UserFullProfileDto extends UserPersonalInfoDto {
   @IsNotEmpty()
   @IsString()
   role: string;

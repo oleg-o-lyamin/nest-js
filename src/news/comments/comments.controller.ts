@@ -1,6 +1,19 @@
-import { Body, Controller, Get, Param, Post, Redirect, Render, UseGuards, Request, UnauthorizedException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Redirect,
+  Render,
+  UseGuards,
+  Request,
+  UnauthorizedException,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersEntity } from 'src/users/users.entity';
+import { CommentBodyDto } from '../dtos/dto';
 import { CommentsEntity } from './comments.entity';
 import { CommentsService } from './comments.service';
 
@@ -11,13 +24,12 @@ export class CommentsController {
   @UseGuards(AuthGuard('jwt'))
   @Post('/delete/:id')
   @Redirect()
-  async delete(@Param('id') id: string, @Request() req) {
-    const commentIdInt = parseInt(id);
-    const news = (await this.commentsService.findById(commentIdInt)).news;
+  async delete(@Param('id', ParseIntPipe) id: number, @Request() req) {
+    const news = (await this.commentsService.findById(id)).news;
 
     if (news.user.id != req.user.id) throw new UnauthorizedException();
 
-    await this.commentsService.delete(commentIdInt);
+    await this.commentsService.delete(id);
     return { url: `/news/${news.id}` };
   }
 
@@ -25,11 +37,10 @@ export class CommentsController {
   @Get('/edit/:id')
   @Render('edit-comment')
   async edit(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Request() req,
   ): Promise<{ title: string; comment: CommentsEntity; user: UsersEntity }> {
-    const commentIdInt = parseInt(id);
-    const comment = await this.commentsService.findById(commentIdInt);
+    const comment = await this.commentsService.findById(id);
 
     if (comment.user.id != req.user.id) throw new UnauthorizedException();
 
@@ -43,14 +54,16 @@ export class CommentsController {
   @UseGuards(AuthGuard('jwt'))
   @Post('/edit/:id')
   @Redirect()
-  async modify(@Param('id') id: string, @Body() body, @Request() req) {
-    const commentIdInt = parseInt(id);
-    const news = (await this.commentsService.findById(commentIdInt)).news;
-    console.log(news.user);
-    console.log(req.user);
+  async modify(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: CommentBodyDto,
+    @Request() req,
+  ) {
+    const news = (await this.commentsService.findById(id)).news;
+
     if (news.user.id != req.user.id) throw new UnauthorizedException();
 
-    await this.commentsService.update(commentIdInt, body.message);
+    await this.commentsService.update(id, body.message);
     return { url: `/news/${news.id}` };
   }
 }

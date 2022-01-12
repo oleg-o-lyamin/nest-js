@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
-import { UserCreateDto } from './dtos/dto';
+import { UserPersonalInfoDto } from './dtos/dto';
 import { UsersEntity } from './users.entity';
 
 @Injectable()
@@ -38,11 +38,11 @@ export class UsersService {
     });
   }
 
-  async update(id: number, firstName: string, lastName: string, email: string) {
+  async update(id: number, body: UserPersonalInfoDto) {
     return await this.usersRepository.update(id, {
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
+      firstName: body.firstName,
+      lastName: body.lastName,
+      email: body.email,
     });
   }
 }

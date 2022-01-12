@@ -1,7 +1,21 @@
-import { Body, Controller, Get, Param, Post, Redirect, Render, UploadedFile, UseGuards, UseInterceptors, Request, UnauthorizedException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Redirect,
+  Render,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+  Request,
+  UnauthorizedException,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersEntity } from './users.entity';
-import { UserCreateDto } from './dtos/dto';
+import { UserFullProfileDto, UserPersonalInfoDto } from './dtos/dto';
 import { from, Observable } from 'rxjs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -33,7 +47,7 @@ export class UsersController {
   )
   @Redirect()
   async create(
-    @Body() body: UserCreateDto,
+    @Body() body: UserFullProfileDto,
     @UploadedFile() avatar: Express.Multer.File,
   ) {
     const userEntity = new UsersEntity();
@@ -51,31 +65,26 @@ export class UsersController {
   @Get('/edit/:id')
   @Render('edit-user')
   async edit(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Request() req,
   ): Promise<{ title: string; user: UsersEntity }> {
-    const idInt = parseInt(id);
+    if (id != req.user.id) throw new UnauthorizedException();
 
-    if (idInt != req.user.id) throw new UnauthorizedException();
-
-    const user = await this.usersService.findById(idInt);
+    const user = await this.usersService.findById(id);
     return { title: 'Редактирование профиля', user: user };
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Post('/edit/:id')
   @Redirect()
-  async modify(@Param('id') id: string, @Body() body, @Request() req) {
-    const idInt = parseInt(id);
+  async modify(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UserPersonalInfoDto,
+    @Request() req,
+  ) {
+    if (id != req.user.id) throw new UnauthorizedException();
 
-    if (idInt != req.user.id) throw new UnauthorizedException();
-
-    await this.usersService.update(
-      idInt,
-      body.firstName,
-      body.lastName,
-      body.email,
-    );
+    await this.usersService.update(id, body);
     return { url: '/news' };
   }
 }

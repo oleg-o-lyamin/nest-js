@@ -14,15 +14,11 @@ import {
   Request,
   UseGuards,
   UnauthorizedException,
+  ParseIntPipe
 } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { CommentsService } from './comments/comments.service';
-import {
-  CommentIdDto,
-  CommentBodyDto,
-  NewsIdDto,
-  NewsCreateDto,
-} from './dtos/dto';
+import { CommentBodyDto, NewsBodyDto } from './dtos/dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { HelperFileLoader } from 'src/utils/HelperFiledLoader';
@@ -59,7 +55,7 @@ export class NewsController {
   )
   @Redirect()
   async create(
-    @Body() news: NewsCreateDto,
+    @Body() news: NewsBodyDto,
     @UploadedFile() cover: Express.Multer.File,
     @Request() req,
   ) {
@@ -101,12 +97,11 @@ export class NewsController {
   @Get('all/:id')
   @Render('news-list')
   async allNewsByAuthor(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Request() req,
   ): Promise<{ news: NewsEntity[]; user: UsersEntity }> {
-    const idInt = parseInt(id);
     return {
-      news: await this.newsService.findAllByAuthor(idInt),
+      news: await this.newsService.findAllByAuthor(id),
       user: await this.authService.verify(req.cookies.jwt),
     };
   }
@@ -114,43 +109,39 @@ export class NewsController {
   @Get('/:id')
   @Render('view-news')
   async getNewsView(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Request() req,
   ): Promise<{ news: NewsEntity; user: UsersEntity }> {
-    const idInt = parseInt(id);
     return {
-      news: await this.newsService.findById(idInt),
+      news: await this.newsService.findById(id),
       user: await this.authService.verify(req.cookies.jwt),
     };
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Post('/:newsId')
+  @Post('/:id')
   @Redirect()
   async addComment(
-    @Param() params: NewsIdDto,
+    @Param('id', ParseIntPipe) id: number,
     @Body() comment: CommentBodyDto,
     @Request() req,
   ) {
-    const idInt = parseInt(params.newsId);
-
     const commentEntity = new CommentsEntity();
-    commentEntity.message = comment.content;
+    commentEntity.message = comment.message;
     commentEntity.user = req.user;
-    commentEntity.news = await this.newsService.findById(idInt);
+    commentEntity.news = await this.newsService.findById(id);
     await this.commentsService.create(commentEntity);
-    return { url: `/news/${params.newsId}` };
+    return { url: `/news/${id}` };
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Get('/edit/:id')
   @Render('edit-news')
   async getEditView(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Request() req,
-  ): Promise<{ title: string; news: NewsEntity, user: UsersEntity }> {
-    const idInt = parseInt(id);
-    const news = await this.newsService.findById(idInt);
+  ): Promise<{ title: string; news: NewsEntity; user: UsersEntity }> {
+    const news = await this.newsService.findById(id);
 
     if (news.user.id != req.user.id) throw new UnauthorizedException();
 
@@ -160,26 +151,39 @@ export class NewsController {
   @UseGuards(AuthGuard('jwt'))
   @Post('/edit/:id')
   @Redirect()
-  async editNews(@Param('id') id: string, @Body() body, @Request() req) {
-    const idInt = parseInt(id);
-    const news = await this.newsService.findById(idInt);
+  async editNews(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: NewsBodyDto,
+    @Request() req,
+  ) {
+    const news = await this.newsService.findById(id);
 
     if (news.user.id != req.user.id) throw new UnauthorizedException();
 
-    await this.newsService.update(idInt, body.title, body.description);
+    await this.newsService.update(id, body);
     return { url: `/news/${id}` };
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Post('/delete/:id')
   @Redirect()
-  async delete(@Param('id') id: string, @Request() req) {
-    const idInt = parseInt(id);
-    const news = await this.newsService.findById(idInt);
+  async delete(@Param('id', ParseIntPipe) id: number, @Request() req) {
+    const news = await this.newsService.findById(id);
 
     if (news.user.id != req.user.id) throw new UnauthorizedException();
 
-    await this.newsService.delete(idInt);
+    await this.newsService.delete(id);
     return { url: '/news' };
+  }
+
+  //
+  // API
+  //
+
+  @Get('api/all/:id')
+  async allNewsByAuthorAPIMethod(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<NewsEntity[]> {
+    return await this.newsService.findAllByAuthor(id);
   }
 }
