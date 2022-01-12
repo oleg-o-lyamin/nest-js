@@ -14,7 +14,7 @@ import {
   Request,
   UseGuards,
   UnauthorizedException,
-  ParseIntPipe
+  ParseIntPipe,
 } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { CommentsService } from './comments/comments.service';
@@ -40,7 +40,7 @@ export class NewsController {
     private mailService: MailService,
     private usersService: UsersService,
     private authService: AuthService,
-  ) { }
+  ) {}
 
   @UseGuards(AuthGuard('jwt'))
   @Post('/new')

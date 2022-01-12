@@ -4,6 +4,7 @@ import {
   Post,
   Redirect,
   Render,
+  Req,
   Request,
   Res,
   UnauthorizedException,
@@ -41,5 +42,29 @@ export class AppController {
   async logout(@Res({ passthrough: true }) response: Response) {
     response.cookie('jwt', '', { expires: new Date() });
     return { url: '/news' };
+  }
+
+  //
+  // API
+  //
+
+  @UseGuards(AuthGuard('local'))
+  @Post('/auth/login')
+  async loginAPIMethod(@Request() req) {
+    return this.authService.login(req.user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/auth/profile')
+  getProfile(@Request() req) {
+    return req.user;
+  }
+
+  //
+  // garbage
+  //
+
+  getHello(): any {
+    throw new Error('Method not implemented.');
   }
 }

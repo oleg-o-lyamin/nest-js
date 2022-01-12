@@ -13,7 +13,7 @@ export class NewsService {
   constructor(
     @InjectRepository(NewsEntity)
     private readonly newsRepository: Repository<NewsEntity>,
-  ) { }
+  ) {}
 
   async findById(id: number): Promise<NewsEntity> {
     return await this.newsRepository.findOne({

@@ -10,7 +10,7 @@ export class UsersService {
   constructor(
     @InjectRepository(UsersEntity)
     private readonly usersRepository: Repository<UsersEntity>,
-  ) { }
+  ) {}
 
   async create(userEntity: UsersEntity): Promise<UsersEntity | undefined> {
     return await this.usersRepository.save(userEntity);

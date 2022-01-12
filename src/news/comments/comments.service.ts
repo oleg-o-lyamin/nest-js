@@ -8,7 +8,7 @@ export class CommentsService {
   constructor(
     @InjectRepository(CommentsEntity)
     private readonly commentsRepository: Repository<CommentsEntity>,
-  ) { }
+  ) {}
 
   async create(comment: CommentsEntity) {
     return await this.commentsRepository.save(comment);

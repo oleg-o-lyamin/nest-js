@@ -19,7 +19,7 @@ import { CommentsService } from './comments.service';
 
 @Controller('comments')
 export class CommentsController {
-  constructor(private commentsService: CommentsService) { }
+  constructor(private commentsService: CommentsService) {}
 
   @UseGuards(AuthGuard('jwt'))
   @Post('/delete/:id')
