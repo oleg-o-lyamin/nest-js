@@ -1,0 +1,17 @@
+<form method='POST' action='/news/new' enctype='multipart/form-data'>
+    <div class="mb-3">
+        <label for="title" class="form-label">Название</label>
+        <input type="text" class="form-control" id="title" name="title">
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Описание</label>
+        <input type="textarea" class="form-control" id="description" name="description">
+    </div>
+    <div class="mb-3">
+        <label for="cover" class="form-label">Обложка</label>
+        <input type="file" class="form-control" id="cover" name="cover">
+    </div>
+    <div>
+        <button type="submit" class="btn btn-primary">Создать</button>
+    </div>
+</form>
