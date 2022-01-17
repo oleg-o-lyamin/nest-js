@@ -186,4 +186,11 @@ export class NewsController {
   ): Promise<NewsEntity[]> {
     return await this.newsService.findAllByAuthor(id);
   }
+
+  @Get('api/all/:id/comments')
+  async getNewsAllComments(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<CommentsEntity[]> {
+    return await this.commentsService.findByNewsId(id);
+  }
 }

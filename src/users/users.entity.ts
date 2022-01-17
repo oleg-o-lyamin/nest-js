@@ -8,6 +8,8 @@ import {
 } from 'typeorm';
 import { NewsEntity } from '../news/news.entity';
 import { CommentsEntity } from '../news/comments/comments.entity';
+import { IsEnum } from 'class-validator';
+import { Role } from 'src/auth/role/role.enum';
 
 @Entity('users')
 export class UsersEntity {
@@ -24,7 +26,8 @@ export class UsersEntity {
   email: string;
 
   @Column('text')
-  role: string;
+  @IsEnum(Role)
+  role: Role;
 
   @Column('text')
   password: string;

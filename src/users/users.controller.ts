@@ -15,19 +15,21 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersEntity } from './users.entity';
-import { UserFullProfileDto, UserPersonalInfoDto } from './dtos/dto';
 import { from, Observable } from 'rxjs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { HelperFileLoader } from 'src/utils/HelperFiledLoader';
 import { hash } from 'src/utils/crypto';
 import { AuthGuard } from '@nestjs/passport';
+import { Role } from 'src/auth/role/role.enum';
+import { Exception } from 'handlebars';
+import { CreateUserDto, EditUserDto } from './dtos/dto';
 
 const avatarFileLoader = new HelperFileLoader();
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Get('/new')
   @Render('new-user')
@@ -47,14 +49,14 @@ export class UsersController {
   )
   @Redirect()
   async create(
-    @Body() body: UserFullProfileDto,
+    @Body() body: CreateUserDto,
     @UploadedFile() avatar: Express.Multer.File,
   ) {
     const userEntity = new UsersEntity();
     userEntity.firstName = body.firstName;
     userEntity.lastName = body.lastName;
     userEntity.email = body.email;
-    userEntity.role = body.role;
+    userEntity.role = Role[body.role];
     userEntity.avatar = '/avatars/' + avatar.filename;
     userEntity.password = await hash(body.password);
     this.usersService.create(userEntity);
@@ -79,12 +81,18 @@ export class UsersController {
   @Redirect()
   async modify(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: UserPersonalInfoDto,
+    @Body() body: EditUserDto,
     @Request() req,
   ) {
     if (id != req.user.id) throw new UnauthorizedException();
 
     await this.usersService.update(id, body);
     return { url: '/news' };
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/api/user')
+  async getUser(@Request() req) {
+    return { id: req.user.id, role: req.user.role };
   }
 }

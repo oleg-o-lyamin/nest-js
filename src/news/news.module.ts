@@ -19,5 +19,6 @@ import { AuthModule } from 'src/auth/auth.module';
     TypeOrmModule.forFeature([UsersEntity]),
     AuthModule,
   ],
+  exports: [NewsService],
 })
 export class NewsModule {}

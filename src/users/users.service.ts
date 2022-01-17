@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Role } from 'src/auth/role/role.enum';
+import { hash } from 'src/utils/crypto';
 
 import { Repository } from 'typeorm';
-import { UserPersonalInfoDto } from './dtos/dto';
+import { EditUserDto } from './dtos/dto';
 import { UsersEntity } from './users.entity';
 
 @Injectable()
@@ -10,7 +12,7 @@ export class UsersService {
   constructor(
     @InjectRepository(UsersEntity)
     private readonly usersRepository: Repository<UsersEntity>,
-  ) {}
+  ) { }
 
   async create(userEntity: UsersEntity): Promise<UsersEntity | undefined> {
     return await this.usersRepository.save(userEntity);
@@ -38,11 +40,15 @@ export class UsersService {
     });
   }
 
-  async update(id: number, body: UserPersonalInfoDto) {
-    return await this.usersRepository.update(id, {
-      firstName: body.firstName,
-      lastName: body.lastName,
-      email: body.email,
+  async update(id: number, body: EditUserDto) {
+    const _user = await this.findById(id);
+
+    return this.usersRepository.update(id, {
+      firstName: body.firstName || _user.firstName,
+      lastName: body.lastName || _user.lastName,
+      email: body.email || _user.email,
+      role: (body.role as Role) || _user.role,
+      password: (await hash(body.password)) || _user.password,
     });
   }
 }

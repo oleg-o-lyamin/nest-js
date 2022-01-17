@@ -36,4 +36,8 @@ export class AuthService {
       return null;
     }
   }
+
+  async decode(token: string) {
+    return this.jwtService.decode(token);
+  }
 }
