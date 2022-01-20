@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'src/auth/role/role.enum';
-import { hash } from 'src/utils/crypto';
+import { hash } from '../utils/crypto';
 
 import { Repository } from 'typeorm';
 import { EditUserDto } from './dtos/dto';
@@ -12,7 +12,7 @@ export class UsersService {
   constructor(
     @InjectRepository(UsersEntity)
     private readonly usersRepository: Repository<UsersEntity>,
-  ) { }
+  ) {}
 
   async create(userEntity: UsersEntity): Promise<UsersEntity | undefined> {
     return await this.usersRepository.save(userEntity);

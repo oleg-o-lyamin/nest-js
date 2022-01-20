@@ -18,10 +18,10 @@ import { UsersEntity } from './users.entity';
 import { from, Observable } from 'rxjs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { HelperFileLoader } from 'src/utils/HelperFiledLoader';
-import { hash } from 'src/utils/crypto';
+import { HelperFileLoader } from '../utils/HelperFiledLoader';
+import { hash } from '../utils/crypto';
 import { AuthGuard } from '@nestjs/passport';
-import { Role } from 'src/auth/role/role.enum';
+import { Role } from '../auth/role/role.enum';
 import { Exception } from 'handlebars';
 import { CreateUserDto, EditUserDto } from './dtos/dto';
 
@@ -29,7 +29,7 @@ const avatarFileLoader = new HelperFileLoader();
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Get('/new')
   @Render('new-user')

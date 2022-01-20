@@ -34,9 +34,9 @@ import { CommentsModule } from './news/comments/comments.module';
     UsersModule,
     AuthModule,
     CommentsModule,
-    EventEmitterModule.forRoot()
+    EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: RolesGuard }],
 })
-export class AppModule { }
+export class AppModule {}

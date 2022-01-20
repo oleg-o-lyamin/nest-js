@@ -9,7 +9,7 @@ import { Role } from './role.enum';
 import { ROLES_KEY } from './roles.decorator';
 import { UsersService } from '../../users/users.service';
 import { AuthService } from '../auth.service';
-import { CommentsService } from 'src/news/comments/comments.service';
+import { CommentsService } from '../../news/comments/comments.service';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -18,7 +18,7 @@ export class RolesGuard implements CanActivate {
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
     private readonly commentsService: CommentsService,
-  ) { }
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
@@ -36,8 +36,7 @@ export class RolesGuard implements CanActivate {
     const _user = await this.usersService.findById(user.id);
 
     const _comment = await this.commentsService.findById(params.id);
-    if (_comment.user.id == _user.id)
-      return true;
+    if (_comment.user.id == _user.id) return true;
 
     return requiredRoles.some((role) => _user.role === role);
   }

@@ -9,7 +9,7 @@ import {
 import { NewsEntity } from '../news/news.entity';
 import { CommentsEntity } from '../news/comments/comments.entity';
 import { IsEnum } from 'class-validator';
-import { Role } from 'src/auth/role/role.enum';
+import { Role } from '../auth/role/role.enum';
 
 @Entity('users')
 export class UsersEntity {

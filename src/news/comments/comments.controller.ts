@@ -13,8 +13,8 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AuthGuard } from '@nestjs/passport';
-import { Role } from 'src/auth/role/role.enum';
-import { Roles } from 'src/auth/role/roles.decorator';
+import { Role } from '../../auth/role/role.enum';
+import { Roles } from '../../auth/role/roles.decorator';
 import { UsersEntity } from 'src/users/users.entity';
 import { CommentBodyDto } from '../dtos/dto';
 import { CommentsEntity } from './comments.entity';
@@ -27,7 +27,7 @@ export class CommentsController {
     private commentsService: CommentsService,
     private gateway: SocketCommentsGateway,
     private readonly eventEmitter: EventEmitter2,
-  ) { }
+  ) {}
 
   //@UseGuards(AuthGuard('jwt'))
   @Roles(Role.Admin)

@@ -21,14 +21,15 @@ import { CommentsService } from './comments/comments.service';
 import { CommentBodyDto, NewsBodyDto } from './dtos/dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { HelperFileLoader } from 'src/utils/HelperFiledLoader';
-import { MailService } from 'src/mail/mail.service';
+import { HelperFileLoader } from '../utils/HelperFiledLoader';
+import { MailService } from '../mail/mail.service';
 import { NewsEntity } from './news.entity';
-import { UsersService } from 'src/users/users.service';
-import { UsersEntity } from 'src/users/users.entity';
+import { UsersService } from '../users/users.service';
+import { UsersEntity } from '../users/users.entity';
 import { CommentsEntity } from './comments/comments.entity';
 import { AuthGuard } from '@nestjs/passport';
-import { AuthService } from 'src/auth/auth.service';
+import { AuthService } from '../auth/auth.service';
+import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 const coverFileLoader = new HelperFileLoader();
 
@@ -37,7 +38,7 @@ export class NewsController {
   constructor(
     private newsService: NewsService,
     private commentsService: CommentsService,
-    private mailService: MailService,
+    //private mailService: MailService,
     private usersService: UsersService,
     private authService: AuthService,
   ) {}
@@ -180,6 +181,22 @@ export class NewsController {
   // API
   //
 
+  @Get('api/all')
+  async getAllNews(): Promise<NewsEntity[]> {
+    return await this.newsService.findAll();
+  }
+
+  @ApiOperation({ description: 'Возвращает все новости, созданные автором.' })
+  @ApiParam({
+    name: 'id',
+    description: 'id автора',
+    allowEmptyValue: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Список новостей успешно возвращён.',
+    type: [NewsEntity],
+  })
   @Get('api/all/:id')
   async allNewsByAuthorAPIMethod(
     @Param('id', ParseIntPipe) id: number,
@@ -187,6 +204,17 @@ export class NewsController {
     return await this.newsService.findAllByAuthor(id);
   }
 
+  @ApiOperation({ description: 'Возвращает все комментарии к новости.' })
+  @ApiParam({
+    name: 'id',
+    description: 'id новости',
+    allowEmptyValue: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Список комментариев успешно возвращён.',
+    type: [CommentsEntity],
+  })
   @Get('api/all/:id/comments')
   async getNewsAllComments(
     @Param('id', ParseIntPipe) id: number,

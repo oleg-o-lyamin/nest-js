@@ -7,6 +7,7 @@ import * as hbs from 'hbs';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import { UsersEntity } from './users/users.entity';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -45,6 +46,16 @@ async function bootstrap() {
   app.setViewEngine('hbs');
 
   app.use(cookieParser());
+
+  const config = new DocumentBuilder()
+    .setTitle('Новостной блог')
+    .setDescription('Документация к API новостного блога')
+    .setVersion('1.0')
+    .addTag('news-blog')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(3000);
 }
