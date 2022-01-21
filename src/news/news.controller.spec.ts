@@ -18,7 +18,7 @@ describe('NewsController', () => {
           provide: NewsService,
           useValue: {
             // eslint-disable-next-line @typescript-eslint/no-empty-function
-            findAll: () => { },
+            findAll: () => {},
           },
         },
         {

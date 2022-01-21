@@ -18,7 +18,7 @@ class Comments extends React.Component {
     // Парсим URL, извлекаем id новости
     this.idNews = parseInt(window.location.href.split('/').reverse()[0]);
     // Указываем адрес сокет сервера
-    this.socket = io('http://localhost:3000', {
+    this.socket = io('', {
       query: {
         // Устанавливаем id новости, он потребуется серверу для назначения комнаты пользователю
         newsId: this.idNews,
@@ -54,12 +54,9 @@ class Comments extends React.Component {
   };
 
   getAllComments = async () => {
-    const response = await fetch(
-      `http://localhost:3000/news/api/all/${this.idNews}/comments`,
-      {
-        method: 'GET',
-      },
-    );
+    const response = await fetch(`/news/api/all/${this.idNews}/comments`, {
+      method: 'GET',
+    });
 
     if (response.ok) {
       const comments = await response.json();
@@ -68,7 +65,7 @@ class Comments extends React.Component {
   };
 
   getUser = async () => {
-    const response = await fetch(`http://localhost:3000/users/api/user`, {
+    const response = await fetch(`/users/api/user`, {
       method: 'GET',
     });
 

@@ -56,7 +56,7 @@ export class UsersController {
     userEntity.firstName = body.firstName;
     userEntity.lastName = body.lastName;
     userEntity.email = body.email;
-    userEntity.role = Role[body.role];
+    userEntity.role = body.role as Role;
     userEntity.avatar = '/avatars/' + avatar.filename;
     userEntity.password = await hash(body.password);
     this.usersService.create(userEntity);
