@@ -1,0 +1,13 @@
+<form method='POST' action='/news/edit/{{news.id}}'>
+    <div class="mb-3">
+        <label for="title" class="form-label">Название</label>
+        <input type="text" class="form-control" id="title" name="title" value="{{news.title}}">
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Описание</label>
+        <input type="textarea" class="form-control" id="description" name="description" value="{{news.description}}">
+    </div>
+    <div>
+        <button type="submit" class="btn btn-primary">Редактировать</button>
+    </div>
+</form>

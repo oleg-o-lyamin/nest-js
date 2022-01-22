@@ -1,4 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppModule } from '../app.module';
+import { NewsEntity } from './news.entity';
 import { NewsService } from './news.service';
 
 describe('NewsService', () => {

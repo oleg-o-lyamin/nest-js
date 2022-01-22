@@ -1,68 +1,50 @@
 import { Injectable } from '@nestjs/common';
+import { randomInt } from 'crypto';
 import { News } from './news.interface';
-
-function getRandomInt(min: number, max: number): number {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min)) + min; //Максимум не включается, минимум включается
-}
+import { Comment } from './comments/comments.interface';
+import * as fs from 'fs';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { NewsEntity } from './news.entity';
+import { NewsBodyDto } from './dtos/dto';
 
 @Injectable()
 export class NewsService {
-  private readonly news: News[] = [
-    {
-      id: 1,
-      title: 'Наша первая новость',
-      description: 'Ураааа! Наша первая новость',
-      author: 'Владислав',
-      countView: 25,
-    },
-    {
-      id: 2,
-      title: 'Вторая новость',
-      description: 'Вот так!',
-      author: 'Олег',
-      countView: 15,
-    },
-  ];
+  constructor(
+    @InjectRepository(NewsEntity)
+    private readonly newsRepository: Repository<NewsEntity>,
+  ) {}
 
-  find(id: number): News | undefined {
-    return this.news.find((news) => news.id === id);
+  async findById(id: number): Promise<NewsEntity> {
+    return await this.newsRepository.findOne({
+      where: { id: id },
+      relations: ['user', 'comments', 'comments.user'],
+    });
   }
 
-  findAll(): News[] {
-    return this.news;
+  async findAll(): Promise<NewsEntity[]> {
+    return await this.newsRepository.find({ relations: ['user'] });
   }
 
-  create(news: News): News {
-    const id = getRandomInt(0, 99999);
-    const finalNews = {
-      ...news,
-      id: id,
-    };
-
-    this.news.push(finalNews);
-    return finalNews;
+  async findAllByAuthor(id: number): Promise<NewsEntity[]> {
+    return await this.newsRepository.find({
+      where: { user: { id: id } },
+      relations: ['user'],
+    });
   }
 
-  remove(id: number): boolean {
-    const indexRemoveNews = this.news.findIndex((news) => news.id === id);
-    if (indexRemoveNews !== -1) {
-      this.news.splice(indexRemoveNews, 1);
-      return true;
-    }
-    return false;
+  async create(news: NewsEntity) {
+    return await this.newsRepository.save(news);
   }
 
-  modify(id: number, news: News): News | undefined {
-    const indexModifyNews = this.news.findIndex((news) => news.id === id);
-    if (indexModifyNews !== -1) {
-      Object.keys(news).forEach((key) => {
-        this.news[indexModifyNews][key] = news[key];
-      });
+  async update(id: number, body: NewsBodyDto) {
+    return await this.newsRepository.update(id, {
+      title: body.title,
+      description: body.description,
+    });
+  }
 
-      return this.news[indexModifyNews];
-    }
-    return undefined;
+  async delete(id: number) {
+    await this.newsRepository.delete(id);
   }
 }

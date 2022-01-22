@@ -1,0 +1,16 @@
+<nav class="navbar navbar-light bg-light">
+    <div class="container-fluid d-flex justify-content-between">
+        <a href="/news" class="btn btn-primary m-1">Все новости</a>
+        <div>
+            {{#if user}}
+            <a href="/users/edit/{{user.id}}"><img class="rounded-circle m-1" alt='avatar' src='{{ user.avatar }}'
+                    width='32' height='32'></a>
+            <a class="btn btn-primary m-1" aria-current="page" href="/news/new">Новая новость</a>
+            <a class="btn btn-primary m-1" href="/logout">Выйти</a>
+            {{else}}
+            <a class="btn btn-primary m-1" aria-current="page" href="/login">Войти</a>
+            <a class="btn btn-primary m-1" href="/users/new">Зарегистрироваться</a>
+            {{/if}}
+        </div>
+    </div>
+</nav>
